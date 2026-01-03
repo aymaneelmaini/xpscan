@@ -22,6 +22,11 @@ A high-performance, multithreaded TCP port scanner for Linux.
 
 - [@sidatii](https://www.github.com/sidatii)
 
+## Dependencies
+
+1- cMake
+2- g++
+2- git
 
 ## Features
 
@@ -30,6 +35,14 @@ A high-performance, multithreaded TCP port scanner for Linux.
 - Full port range scanning
 - Json and text export format
 
+### Non-Blocking Architecture
+Unlike traditional scanners that wait (block) for each connection to time out, `xpscan` utilizes:
+- **`O_NONBLOCK`**: Sockets are set to non-blocking mode immediately after creation.
+- **`select()`**: Multiplexing is used to monitor socket writability with a precise 500ms window.
+- **Thread Pooling**: A sliding window of threads ensures maximum CPU utilization without hitting OS file descriptor limits.
+
+### Configuration
+The tool follows the **XDG Base Directory Specification**, storing persistent configurations in `~/.config/.xpscan/path.conf`.
 
 ## Installation
 

@@ -1,6 +1,7 @@
 #include "../include/Exporter.h"
 
 #include <ctime>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -28,6 +29,9 @@ void Exporter::saveToJson(const std::string& ip, const std::vector<PortResult>& 
     return;
   }
   std::string dir = get_export_path();
+  if (!std::filesystem::exists(dir)) {
+    std::filesystem::create_directories(dir);
+  }
   std::string full_path = dir + ip + "_" + get_timestamp() + ".json";
 
   std::ofstream file(full_path);
@@ -47,10 +51,12 @@ void Exporter::saveToText(const std::string& ip, const std::vector<PortResult>& 
     return;
   }
   std::string dir = get_export_path();
+  if (!std::filesystem::exists(dir)) {
+    std::filesystem::create_directories(dir);
+  }
   std::string full_path = dir + "/" + ip + "_" + get_timestamp() + ".txt";
 
   std::ofstream file(full_path);
-  file << "[\n";
   for (size_t i = 0; i < results.size(); ++i) {
     file << "Port: " << results[i].port << " | service: " << results[i].service << "\n";
   }
