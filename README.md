@@ -49,7 +49,7 @@ The tool follows the **XDG Base Directory Specification**, storing persistent co
 Install xpscan using curl
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/Sidatii/xpscan/refs/heads/master/install.sh | bash
+bash <(curl -sSL https://raw.githubusercontent.com/Sidatii/xpscan/refs/heads/master/install.sh)
 ```
 
 

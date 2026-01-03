@@ -1,52 +1,60 @@
 #!/bin/bash
 
-# Define colors
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-echo -e "${BLUE}== xpscan (Pro-Scanner) Installer ==${NC}"
+echo -e "${BLUE}== xpscan (Pro-Scanner) Setup ==${NC}"
 
-# 1. Check for dependencies
-for cmd in git cmake g++; do
-  if ! command -v $cmd &>/dev/null; then
-    echo -e "${RED}[!] Error: $cmd is not installed.${NC}"
-    exit 1
-  fi
-done
+# 1. Detect Existing Installation
+CONFIG_DIR="$HOME/.config/.xpscan"
+CONF_FILE="$CONFIG_DIR/path.conf"
+IS_UPGRADE=false
+
+if command -v xpscan &>/dev/null; then
+  echo -e "${YELLOW}[!] Existing installation detected. Switching to Upgrade mode.${NC}"
+  IS_UPGRADE=true
+fi
 
 # 2. Setup Configuration
-read -p "Enter default export directory [default: ~/xpscan/]: " EXPORT_PATH
-EXPORT_PATH=${EXPORT_PATH:-$HOME/xpscan/}
+if [ "$IS_UPGRADE" = true ] && [ -f "$CONF_FILE" ]; then
+  EXPORT_PATH=$(cat "$CONF_FILE")
+  echo -e "${BLUE}[*] Preserving export path: ${EXPORT_PATH}${NC}"
+else
+  # Redirection from /dev/tty ensures this works via curl | bash
+  read -p "Enter default export directory [default: $HOME/xpscan/]: " EXPORT_PATH </dev/tty
+  EXPORT_PATH=${EXPORT_PATH:-$HOME/xpscan/}
 
-mkdir -p "$EXPORT_PATH"
-CONFIG_DIR="$HOME/.config/.xpscan"
-mkdir -p "$CONFIG_DIR"
-echo "$EXPORT_PATH" >"$CONFIG_DIR/path.conf"
+  mkdir -p "$CONFIG_DIR"
+  mkdir -p "$EXPORT_PATH"
+  echo "$EXPORT_PATH" >"$CONF_FILE"
+fi
 
 # 3. Clone and Build
 TEMP_DIR=$(mktemp -d)
-echo -e "${BLUE}[*] Cloning repository to $TEMP_DIR...${NC}"
+echo -e "${BLUE}[*] Downloading latest source...${NC}"
+git clone https://github.com/sidatii/xpscan.git "$TEMP_DIR" &>/dev/null
 
-git clone https://github.com/sidatii/xpscan.git $TEMP_DIR
-cd $TEMP_DIR
+cd "$TEMP_DIR" || exit
+mkdir -p build && cd build
 
 echo -e "${BLUE}[*] Compiling...${NC}"
-mkdir build && cd build
-cmake .. && make
+cmake .. >/dev/null && make >/dev/null
 
-# 4. Install
+# 4. Final Move
 if [ -f "xpscan" ]; then
   sudo mv xpscan /usr/local/bin/xpscan
-  echo -e "${GREEN}[+] xpscan installed successfully to /usr/local/bin/xpscan${NC}"
+  if [ "$IS_UPGRADE" = true ]; then
+    echo -e "${GREEN}[+] xpscan successfully upgraded!${NC}"
+  else
+    echo -e "${GREEN}[+] xpscan installed successfully to /usr/local/bin/xpscan${NC}"
+  fi
 else
-  echo -e "${RED}[!] Build failed.${NC}"
+  echo -e "${RED}[!] Error: Build failed.${NC}"
   exit 1
 fi
 
 # 5. Cleanup
-cd /tmp
 rm -rf "$TEMP_DIR"
-
-echo -e "${GREEN}[+] Done! Run 'xpscan --help' to get started.${NC}"
