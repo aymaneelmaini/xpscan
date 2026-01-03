@@ -36,7 +36,7 @@ A high-performance, multithreaded TCP port scanner for Linux.
 Install xpscan using curl
 
 ```bash
-curl -sSL https://github.com/Sidatii/xpscan/blob/master/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/Sidatii/xpscan/refs/heads/master/install.sh | bash
 ```
 
 
