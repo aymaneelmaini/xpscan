@@ -2,10 +2,12 @@
 #define COMMON_H
 
 #include <string>
+using namespace std;
 
-struct PortResult {
-  int port;
-  std::string service;
+struct PortResult
+{
+    int    port;
+    string service;
 };
 
-#endif  // !COMMON_H
+#endif // !COMMON_H
